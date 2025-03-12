@@ -1,19 +1,25 @@
 
-BANDERA = "7E"
-ESCAPE = "7D"
+BANDERA = int("7E", 16)
+ESCAPE = int("7D", 16)
 
-content = ""
+longitud_incorrecta = 0
+checksum_incorrecta = 0
+cant_secs_escape = 0
+
+
+# leer archivo y separarlo en lista de bytes
+
 with open("tramas.log", "r") as file:
     content = file.read()
 
-bytes = [content[i:i+2] for i in range(0, len(content)-1, 2)]
+bytes = [int(content[i:i+2], 16) for i in range(0, len(content)-1, 2)]
 
-cant_sec_escape = 0
+
+# generamos las tramas en base a la presencia de delimitadores
 
 tramas = []
-
-isEscaped = False
 trama = []
+isEscaped = False
 for i in range(1, len(bytes)):
     byte = bytes[i]
 
@@ -26,7 +32,7 @@ for i in range(1, len(bytes)):
 
     if (byte == ESCAPE):
         isEscaped = True
-        cant_sec_escape += 1
+        cant_secs_escape += 1
         continue
 
     if (byte == BANDERA):
@@ -35,40 +41,38 @@ for i in range(1, len(bytes)):
         continue
 
     trama.append(byte)
-
 tramas.append(trama)
 
-
 total_tramas = len(tramas)
-long_incorrecta = 0
-checksum_incorrecta = 0
+
+
+# para cada trama, verificamos si la longitud y checksum son correctas
 
 for trama in tramas:
-    fstByte = trama[0]
-    sndByte = trama[1]
-
-    longitud = int(fstByte + sndByte, 16)
+    longitud = trama[0] * 256 + trama[1]
     
     if (longitud != len(trama) - 3):
-        long_incorrecta += 1
+        longitud_incorrecta += 1
         continue
     
-    checksum1 = int(trama[-1], 16)
+    checksum1 = trama[-1]
 
-    nums = [int(byte, 16) for byte in trama[2:-1]]
-    suma = sum(nums)
+    suma = sum(trama[2:-1])
     checksum2 = 0xFF - (suma & 0xFF)
     
     if (checksum1 != checksum2):
         checksum_incorrecta += 1
 
 
-long_correcta = total_tramas - long_incorrecta
-checksum_correcto = long_correcta - checksum_incorrecta
+longitud_correcta = total_tramas - longitud_incorrecta
+checksum_correcta = longitud_correcta - checksum_incorrecta
 
-print("total_tramas = ", total_tramas)
-print("long_incorrecta = ", long_incorrecta)
-print("long_correcta = ", long_correcta)
-print("checksum_incorrecta = ", checksum_incorrecta)
-print("checksum_correcto = ", checksum_correcto)
-print("cant_sec_escape = ", cant_sec_escape)
+
+# imprimir resultados
+
+print("Total de tramas = ", total_tramas)
+print("Tramas con long. correcta = ", longitud_correcta)
+print("Tramas con long. incorrecta = ", longitud_incorrecta)
+print("Tramas con long. y checksum correctas = ", checksum_correcta)
+print("Tramas con long correcta y checksum incorrecta = ", checksum_incorrecta)
+print("Cantidad de secuencias de escape = ", cant_secs_escape)
