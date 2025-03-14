@@ -45,7 +45,7 @@ for i in range(1, len(bytes)):
     
     if (byte == BANDERA or i == len(bytes) - 1):
         if (i == len(bytes) - 1):
-            tramas.append(trama)
+            trama.append(byte)
         
         if (wasEscaped):
             print(f"La línea Nro. {len(tramas)} tiene una secuencia de escape. La línea es:")
@@ -57,10 +57,6 @@ for i in range(1, len(bytes)):
         continue
 
     trama.append(byte)
-
-    if (i == len(bytes) - 1):
-        tramas.append(trama)
-
 
 total_tramas = len(tramas)
 
@@ -101,5 +97,5 @@ print("Total de tramas = ", total_tramas)
 print("Tramas con long. correcta = ", longitud_correcta)
 print("Tramas con long. incorrecta = ", longitud_incorrecta)
 print("Tramas con long. y checksum correctas = ", checksum_correcta)
-print("Tramas con long correcta y checksum incorrecta = ", checksum_incorrecta)
+print("Tramas con long. correcta y checksum incorrecta = ", checksum_incorrecta)
 print("Cantidad de secuencias de escape = ", cant_secs_escape)
